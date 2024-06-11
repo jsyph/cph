@@ -8,15 +8,24 @@ from datetime import datetime
 import tomllib
 import atexit
 import re
-from pathlib import Path
 import sys
 
-MAIN_FOLDER_PATH = Path(__file__).parent
+
+def resource_path(relative_path):
+    """Get absolute path to resource, works for dev and for PyInstaller"""
+    base_path = getattr(sys, "_MEIPASS", os.path.dirname(os.path.abspath(__file__)))
+    return os.path.join(base_path, relative_path)
 
 
 def load_template() -> Template:
-    env = Environment(loader=FileSystemLoader(MAIN_FOLDER_PATH))
+    env = Environment(loader=FileSystemLoader(resource_path("")))
     return env.get_template("template.jinja.cpp")
+
+
+def load_sources() -> dict[str, Any]:
+    with open(resource_path("sources.toml"), mode="rb") as f:
+        sources: dict[str, Any] = tomllib.load(f)
+    return sources
 
 
 def open_nvim(file_path: str) -> None:
@@ -53,8 +62,7 @@ def option_input(prompt: str, default: str) -> bool:
 
 
 def main():
-    with open(f"{MAIN_FOLDER_PATH}/sources.toml", mode="rb") as f:
-        sources: dict[str, Any] = tomllib.load(f)
+    sources: dict[str, Any] = load_sources()
 
     code_template: Template = load_template()
 
