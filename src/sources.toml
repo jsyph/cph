@@ -1,0 +1,38 @@
+# Format:
+# domain = [string]
+# name = [string]
+# format = array[string] {optional}
+# param = [string] {optional}
+
+[cses]
+domain = "cses.fi"
+format = ["https://cses.fi/problemset/task/{}"]
+name = "cses"
+
+[onlinejudge]
+domain = "onlinejudge.org"
+param = "problem"
+name = "onlinejudge"
+
+[kattis]
+domain = "open.kattis.com"
+format = ["https://open.kattis.com/problems/(?P<NAME>.+)"]
+name = "kattis"
+
+[codeforces]
+domain = "codeforces.com"
+format = ["https://codeforces.com/contest/(?P<CONTEST>.+)/problem/(?P<NUM>.+)"]
+name = "codeforces"
+
+[vjudge]
+domain = "vjudge.net"
+format = [
+  "https://vjudge.net/problem/(?P<ID>.+)",
+  "https://vjudge.net/contest/(?P<ID>.+)#problem/(?P<NUM>.+)",
+]
+name = "vjudge"
+
+[USACO]
+domain = "usaco.org"
+param = "cpid"
+name = "USACO"
