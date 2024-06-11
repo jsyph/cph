@@ -48,7 +48,7 @@ def done_text(problem_file_name: str) -> None:
     )
 
 
-def option_input(prompt: str, default: str) -> bool:
+def option_input(prompt: str, default: str) -> str:
     """
     Displays input prompt for user with options `y` and `n`
     Returns `True` if the user input is equal to `default` value
@@ -58,7 +58,11 @@ def option_input(prompt: str, default: str) -> bool:
     )
     user_input = user_input.lower()
 
-    return user_input == default
+    if user_input not in ["y", "n"]:
+        print_error(f"{user_input} is invalid input")
+        exit()
+
+    return user_input
 
 
 def main():
@@ -74,22 +78,21 @@ def main():
     url: ParseResult = urlparse(user_input)
 
     problem = Problem()
+    source_data: dict[str, Any] = {}
     if url.scheme:
         # is url
         for name in sources:
             if url.netloc == sources[name]["domain"]:
-                website = sources[name]
+                source_data = sources[name]
                 break
         else:
             print_error(f"{url.netloc} is not supported")
             return
 
-        problem.source = website["name"]
-
-        if website.get("param"):
-            problem.id = parse_qs(url.query)[website["param"]][0]
+        if source_data.get("param"):
+            problem.id = parse_qs(url.query)[source_data["param"]][0]
         else:
-            for re_format in website["format"]:
+            for re_format in source_data["format"]:
                 result = re.match(re_format, user_input)
                 if result:
                     result_dict = result.groupdict()
@@ -98,20 +101,40 @@ def main():
         if problem.id == "":
             print_error(f"Failed to parse {user_input}")
             return
-
     else:
         problem.id = user_input.upper()
-        problem.source = input(normal_text("Enter source name: "))
+        source_data["name"] = input(normal_text("Enter source name: "))
 
-    use_file_io: bool = option_input("Use file IO?", "n")
+    problem.source = source_data["name"]
 
-    if not use_file_io:
+    use_stdio_source_default = "y" if source_data.get("fileio") else "n"
+    use_fileio = option_input("Use file IO?", use_stdio_source_default)
+
+    if use_fileio == "y":
         problem.fileio = True
-        problem.input_file_name = input(normal_text("    Input file name: "))
-        problem.output_file_name = input(normal_text("    Output file name: "))
+        same_file_name = option_input("    Same file name?", "y")
+        if same_file_name:
+            file_name = input(normal_text("        File name: "))
 
-    multi_input: bool = option_input("Multiple Input?", "n")
-    problem.multi_input = multi_input
+            problem.input_file_name = f"{file_name}.in"
+            problem.output_file_name = f"{file_name}.out"
+
+            print_normal(
+                f"    Input  file name: {hightlight_text(problem.input_file_name)}"
+            )
+            print_normal(
+                f"    Output file name: {hightlight_text(problem.output_file_name)}"
+            )
+
+            ok_file_names = option_input("Confirm? ", "y")
+            if not ok_file_names:
+                problem.input_file_name = input(normal_text("    Input  file  name: "))
+                problem.output_file_name = input(normal_text("    Output file name: "))
+        else:
+            problem.input_file_name = input(normal_text("    Input  file  name: "))
+            problem.output_file_name = input(normal_text("    Output file name: "))
+    single_input: bool = option_input("Multiple Input?", "n") == "n"
+    problem.multi_input = not single_input
 
     rendered_code = code_template.render(
         id=problem.id,
@@ -131,7 +154,7 @@ def main():
         print(
             f"{hightlight_text(problem.file_name())} {warning_text("already exists.")}"
         )
-        overwrite: bool = option_input("Overwrite?", "y")
+        overwrite: bool = option_input("Overwrite?", "y") == "y"
 
         if not overwrite:
             done_text(problem.file_name())

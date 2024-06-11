@@ -4,11 +4,11 @@ from pprint import pprint
 
 
 def normal_text(text: str) -> str:
-    return Style.BRIGHT + Fore.WHITE + text + Fore.RESET
+    return Fore.WHITE + text + Fore.RESET
 
 
 def success_text(text: str) -> str:
-    return Style.BRIGHT + Fore.GREEN + text
+    return Fore.GREEN + text
 
 
 def error_text(text: str) -> str:
@@ -16,11 +16,11 @@ def error_text(text: str) -> str:
 
 
 def hightlight_text(text: str) -> str:
-    return Style.BRIGHT + Fore.LIGHTMAGENTA_EX + text
+    return Fore.LIGHTMAGENTA_EX + text
 
 
 def warning_text(text: str) -> str:
-    return Style.BRIGHT + Fore.YELLOW + text
+    return Fore.YELLOW + text
 
 
 def text_reset() -> str:
@@ -54,4 +54,4 @@ def pprint_debug(content: Any):
 
 
 def reset_all() -> None:
-    print(text_reset())
+    print(text_reset(), end=None)

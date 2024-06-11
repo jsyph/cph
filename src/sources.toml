@@ -1,6 +1,7 @@
 # Format:
 # domain = [string]
 # name = [string]
+# fileio = [bool] {optional}
 # format = array[string] {optional}
 # param = [string] {optional}
 
@@ -36,3 +37,4 @@ name = "vjudge"
 domain = "usaco.org"
 param = "cpid"
 name = "USACO"
+fileio = true
