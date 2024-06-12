@@ -1,3 +1,4 @@
+from httpserver import run_webserver
 from text_formatter import *
 from problem import Problem
 from jinja2 import Environment, FileSystemLoader, Template
@@ -67,17 +68,25 @@ def option_input(prompt: str, default: str) -> str:
 
 def main():
     sources: dict[str, Any] = load_sources()
-
     code_template: Template = load_template()
+
+    problem = Problem()
 
     if len(sys.argv) == 2:
         user_input: str = sys.argv[1]
     else:
-        user_input: str = input(normal_text("Enter url or question number: "))
+        user_input: str = input(
+            normal_text(
+                "Enter one of the following options:\n- Question URL\n- Question number\n- Listen for Competetive Companion extension: "
+            )
+        )
 
+    if not user_input:
+        print_highlight("[Listening...]")
+        user_input = run_webserver()
+        print_normal(f"Recieved {user_input}")
     url: ParseResult = urlparse(user_input)
 
-    problem = Problem()
     source_data: dict[str, Any] = {}
     if url.scheme:
         # is url
@@ -126,7 +135,7 @@ def main():
                 f"    Output file name: {hightlight_text(problem.output_file_name)}"
             )
 
-            ok_file_names = option_input("Confirm? ", "y")
+            ok_file_names: bool = option_input("Confirm? ", "y") == "y"
             if not ok_file_names:
                 problem.input_file_name = input(normal_text("    Input  file  name: "))
                 problem.output_file_name = input(normal_text("    Output file name: "))
